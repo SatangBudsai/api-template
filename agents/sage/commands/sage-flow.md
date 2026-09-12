@@ -1,0 +1,299 @@
+# /sage-flow — turn a feature/journey into an implementation-ready business flow
+
+Take a described flow (a feature, a user journey, a business process) and produce
+a complete, end-to-end **business flow document** that any engineer — on any
+stack, in any language, across one or many repos — can implement from without
+guessing. The output names every system involved, every API (existing + new),
+every piece of state, every error path, and who builds what.
+
+**This skill is stack-agnostic.** It works for a TypeScript web app, a Go
+service, a Python worker, a mobile app, an embedded system, or a mix. Never
+assume a framework — detect it from the code, or describe the flow in
+system-neutral terms (systems, endpoints, storage, messages) when the target is
+unknown.
+
+> **Invoked by the run checklist.** When `plan-flow` is active (§0 of `AGENTS.md`),
+> Sage runs this command itself before writing code — the human does not call it
+> manually. `/sage-flow` is the **build** half of `plan-flow`; the **verify** half
+> lives in Step 4 below.
+> It accepts only `clear-single-session` requests or a spec-ready handoff from
+> `/sage-grill` or `/sage-wayfinder`. It is not the storage/coordination layer
+> for unresolved multi-session fog.
+>
+> **Shape & prose** follow the shared style-guide
+> [`agents/sage/docs-style-template.md`](agents/sage/docs-style-template.md)
+> (ASCII overview rules, "when → then", concrete-over-abstract). `/sage-flow` is
+> the **pre-code design** artifact (reuse-vs-build, cross-repo contracts) written
+> to `agents/sage/flows/<slug>/flow.md`; `/sage-docs` is the **post-code** human
+> doc in `docs/`.
+
+---
+
+## Model & effort — read the session ceiling first
+
+Follow the same discipline as `/sage`: detect the current session **model +
+effort** and never exceed either. **Flow design is never downgraded** — the whole
+command (build **and** verify) runs at the **full session model + effort**, never
+a lower tier. It is the highest-reasoning step there is; `suggest-switch-model` may
+lower other trivial sub-tasks, never this one. The only cap is the session
+ceiling itself — never raise above it. State the ceiling once in the intent block.
+
+---
+
+## Step 1 — Load role (`architect`, handing off as needed)
+
+Open `agents/sage/roles/role-architect.md`:
+
+- **Found** → read it; adopt when `status: approved`, use as advisory when
+  `status: proposed`. Output the matching loaded/proposed role line.
+- **Missing** → create it with `status: proposed` (draws clean system
+  boundaries, decides what belongs in which service/store/token, makes failure
+  and idempotency explicit), output:
+  `Role: architect [created · proposed]`
+
+A flow may span domains (frontend, backend, payments, data). Load the relevant
+domain role when you reach that system's section and output the handoff line.
+
+> **Multi-repo:** if the flow crosses repos, anchor every path (`agents/sage/`,
+> role files) to the repo that owns the file you're writing. State each repo root
+> once in the intent block. Never write one repo's knowledge into another.
+
+---
+
+## Step 2 — Ground the flow in reality (do NOT invent)
+
+Before writing a single step, discover what already exists. Source is
+authoritative — never infer an API, table, or contract from a name.
+
+Read `agents/sage/flow-workspaces.md`, then locate the matching flow workspace.
+If `agents/sage/flows/<slug>/spec.md` exists, read it first. Treat its resolved
+product intent, canonical terms, scope, out-of-scope, and trade-offs as the input
+contract; do not re-interview them. If only a legacy
+`agents/sage/flows/<slug>-spec.md` exists, follow the migrate-on-write rule in
+the workspace contract.
+
+1. **Identify the systems/actors.** Website/app, each backend service, each
+   external provider, queues, cron, the user roles. Draw the trust boundary:
+   who owns money/ids/secrets, who is allowed to compute what.
+2. **Find existing assets per system.** Endpoints, data models/tables, shared
+   utils, auth/session handling, existing pages/screens, existing state stores.
+   Open the real files and read the exports/signatures/fields. Fan out with
+   parallel search agents when the surface is large.
+3. **Separate reuse vs build.** For every capability the flow needs, decide:
+   already exists (reuse), exists but must change, or missing (build new).
+4. **Surface the conflicts early.** Ambiguity, missing business rules, a step
+   that contradicts another (e.g. "don't call the API yet" vs "show the price").
+   Ask one focused question only when the answer changes the design. If code or
+   schema contradicts a resolved Grill/Wayfinder decision, name that decision
+   and the new evidence, then reopen it explicitly. Do not ask it again as if it
+   were never decided.
+
+If a domain folder under `agents/sage/` exists for a system, read its `rules.md`
+and relevant `decisions/` and quote what applies.
+
+---
+
+## Step 3 — State intent + apply the central risk verdict
+
+Output this block before writing the full doc:
+
+```text
+Repos   : <repo → responsibility>  (list each when >1)
+Role    : architect — <flow name in one line>
+Model   : <model> @ effort:<effort>  ← session ceiling
+Systems : <website / service-A / payment-service / gateway / …>
+Reuse   : <what already exists>
+Build   : <what's missing / must change>
+Unknowns: <open questions that block design>
+Risk    : LOW | MEDIUM | HIGH · confidence:<low|medium|high> — <why>
+Drivers : <affected asset → concrete failure mode>
+Controls: <required control the flow must design + later evidence>
+Decision: proceed | warn | ask | reject
+```
+
+- `proceed|warn` → build and verify the flow without inventing a confirmation
+  checkpoint.
+- `ask|reject` → return to the human before the affected mutation.
+
+Interaction policy never weakens the central risk verdict.
+
+---
+
+## Step 4 — Write the flow document
+
+Write to `agents/sage/flows/<slug>/flow.md` (in the repo that owns the flow's
+entry point; for a pure backend flow, the backend repo). Derive `<slug>` from the
+flow name, reuse the same slug established by Grill, and create/update
+`index.md` as the workspace entry point. If the doc exists, update in place.
+
+**Language:** match the language the user is working in (the conversation / the
+existing docs). Keep technical tokens (method, path, table, field, status, key,
+type/DTO names) in their real form — they never get translated.
+
+The document MUST contain these sections, in order. Adapt names to the flow, but
+never drop one without saying why it's N/A.
+
+When a relevant screenshot or diagram exists, store it under the workspace
+`evidence/` tree, catalog it in `evidence/index.md`, and embed it in the
+appropriate section of `flow.md` with a relative Markdown image link and
+descriptive alt text. On every update, preserve valid relevant embeds, add new
+evidence where it supports a decision or control, and remove or replace stale
+references. Do not embed every capture merely because it exists.
+
+1. **Header + design decisions** — one-paragraph summary, date, links to related
+   `decisions/`. Call out any non-obvious design choice up front (e.g. "record is
+   created only at payment, not at review").
+2. **Actors & Systems** — table of every system + its responsibility +
+   ownership. Then the **trust boundary**: who owns ids/money/secrets, who may
+   compute/store what, what each system must NOT do.
+3. **End-to-end overview** — one linear diagram (ASCII per the style-guide)
+   tracing the whole journey across systems, including the server-to-server paths
+   (webhooks, callbacks) and the client paths (redirects), marking which is the
+   source of truth.
+4. **Step-by-step** — each step says **which system acts**, what it does, which
+   API it calls (name + method + path), and the exact when → then → outcome. One
+   branch per line. Cover the happy path and every alternate path.
+5. **State / data handling** — every piece of state: where it lives (client
+   store, DB row, cache, token), its shape, its lifecycle (created when, updated
+   when, cleared when, TTL). Call out what must NOT be trusted client-side.
+6. **API spec — all systems** — for EACH system, a table/spec of endpoints split
+   into **reuse (exists)** and **build new**. For every new endpoint give
+   method, path, request shape, response shape (with real error codes), and side
+   effects. Include the internal/service-to-service and provider endpoints, not
+   just the public ones.
+7. **Cross-repo work** (include only when >1 repo) — for each repo: what it
+   builds, the integration contract with the others (request/response/event
+   shape), the sequence of who-calls-who, deployment/versioning order, and where
+   each repo's knowledge is captured. Make the contract explicit enough that the
+   two teams can build in parallel against it.
+8. **Status lifecycle** — every status value, its meaning, who sets it, the legal
+   transitions. Note any schema default that this flow overrides.
+9. **Data model touchpoints** — the tables/entities touched and their key fields
+   (reuse existing; flag new columns/migrations).
+10. **Edge cases & error handling** — a table of concrete failure scenarios →
+    handling (refresh mid-flow, double-submit, provider down mid-transaction,
+    duplicate webhook, timeout, expired, permission mismatch, empty selection).
+11. **Security & concurrency** — authz/ownership (IDOR), where money/ids are
+    computed, secret ownership, **idempotency** points, atomicity/rollback,
+    amount/signature verification, race conditions.
+12. **Build checklist** — grouped per system/repo, each item a concrete unit of
+    work in checkbox form. Make each item sliceable: give it a stable id, name
+    the system that owns it, list what it depends on, and state the acceptance
+    condition in when → then form plus any required control it must produce
+    evidence for. This is the input `/sage-ticket` cuts implementation tickets
+    from — an item with no acceptance condition cannot become a ticket.
+13. **Open questions** — the decisions still needed before/while building; mark
+    any that are already resolved.
+
+**Quality bar (govern every section):**
+
+- **Concrete over abstract** — `409 { conflictItems: [...] }` beats "return an
+  error"; `UPDATE trn_submit SET payment_status='C'` beats "save the status".
+  Use real names.
+- **When → then → outcome** — every branch traceable top-to-bottom; every path
+  ends in a clear outcome.
+- **Source of truth is explicit** — for any dual-path result (webhook vs
+  redirect, cache vs db), say which one decides and why.
+- **Idempotency & atomicity are called out** wherever money or external calls
+  happen — never leave "what if this is retried / half-fails" unanswered.
+- **The test:** someone who has never seen the code can implement every branch,
+  in the right system, from the doc alone.
+
+**Verify the flow ("should it really be this way?") — the second half of
+`plan-flow`.** Before you finish, review the doc as a skeptic, not its author:
+re-check each step against the real code/schema, hunt the weak points (wrong
+trust boundary, a missed error path, a step that contradicts a rule, a simpler
+route), make sure every uncertainty is in §13 Open Questions, and **ask the human
+the risky/ambiguous ones now** — do not code past a doubt.
+
+Classify open questions by dependency. Batch two or three independent decisions
+in one checkpoint (bounded by `maxQuestionsPerCheckpoint`) with a recommendation
+for each. Ask a dependent decision tree one most-blocking question at a time
+because each answer changes the next branch. Facts stay agent-owned.
+
+Also apply the driver-control matrix in `AGENTS.md` §1.4. Every applicable
+required control must appear in the flow's edge cases, security/concurrency, or
+build checklist with the system that will produce its evidence. A flow with an
+unowned critical control or a validation gap is not implementation-ready; keep
+the resulting risk open rather than hiding it in prose.
+
+**Exit contract:** Flow grilling owns newly discovered implementation decisions
+(system boundaries, APIs, state, failure paths, security, rollout). Product
+intent, terminology, scope, and trade-offs resolved upstream stay closed unless
+contradictory code/schema evidence is cited. End with `design-clear` only when
+all implementation-shaping questions are resolved; otherwise return the material
+gate and wait.
+
+When invoked by an active `/sage` run with
+`interaction.continueAfterHandoff: true`, return `design-clear` to the parent and
+continue into implementation immediately. Completing Flow is a handoff, not a
+terminal condition. When invoked standalone, print the summary and return the
+artifact because no parent run exists.
+
+On `design-clear`, hand the Build checklist to **`/sage-ticket`** when the work
+needs ordered, independently verifiable slices — several systems, more than one
+session, or parallel builders. A small single-session change may go straight to
+implementation; do not cut tickets as ceremony. Either way, the finished change
+ends at `/sage-review`.
+
+---
+
+## Step 5 — Capture knowledge (mandatory)
+
+The flow doc lives in `agents/sage/flows/<slug>/flow.md`. Additionally capture the reusable
+**pattern** (not the specifics) as a decision so the next flow benefits:
+
+- **A — New pattern** → `agents/sage/<domain>/decisions/<slug>.md`. Write the
+  pattern + why + Do/Avoid. `enforcement: advise`, `source: ai`,
+  `status: proposed`. Example: "Create the transactional record only at the
+  pay/commit step, never at the review step — no server-side draft garbage from
+  abandoned journeys."
+- **B — Updated** an existing decision → note accurate/stale, update in place.
+- **C — None** → state `No new knowledge — <file> covers this`.
+
+For multi-repo flows, write each repo's pattern into that repo's `agents/sage/`.
+
+---
+
+## Step 6 — Summary (mandatory — a response without this is incomplete)
+
+Output as plain markdown (no code fence):
+
+```markdown
+── Sage Flow ─────────────────────────────────────
+**Role** · architect — <flow in one line>
+**Model** · <model> @ effort:<effort>
+**Systems** · <list> | **Repos** · <list> | **Initial risk** · <LOW|MEDIUM|HIGH>
+
+**Flow doc** · `agents/sage/flows/<slug>/flow.md`
+
+**Shape**
+Summarise the journey in 2–3 sentences: entry → key steps → exit, naming the
+system that owns each critical decision.
+
+**Reuse vs build**
+
+- Reuse: <existing endpoints/models/components>
+- Build: <new endpoints/services/pages, grouped by system/repo>
+
+**Cross-repo** (omit if single repo)
+
+- <repo> builds <X>; contract with <repo> is <shape>; build order <…>
+
+**Open questions**
+
+- <the decisions still blocking implementation>
+
+**Required controls**
+
+- <driver → control → owner/evidence planned>
+
+**Residual design risk** · <LOW|MEDIUM|HIGH> — <what verification resolved or left open>
+
+**Knowledge** · [new | updated | none] `<path>` — <pattern title>
+──────────────────────────────────────────────────
+```
+
+If Open Questions contains a material gate, return it to the human. Otherwise
+return `design-clear` to the active parent `/sage` run and continue when
+configured; do not add a generic confirmation step.

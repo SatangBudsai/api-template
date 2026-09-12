@@ -1,0 +1,72 @@
+{
+  "permissions": [
+    { "code": "account:read", "description": "Read the signed-in account." },
+    {
+      "code": "sessions:read",
+      "description": "List the signed-in account sessions."
+    },
+    {
+      "code": "sessions:revoke",
+      "description": "Revoke the signed-in account sessions."
+    },
+    {
+      "code": "roles:read",
+      "description": "List roles and their permissions."
+    },
+    { "code": "roles:create", "description": "Create custom roles." },
+    { "code": "roles:update", "description": "Update custom role details." },
+    { "code": "roles:delete", "description": "Deactivate custom roles." },
+    {
+      "code": "roles:permissions:update",
+      "description": "Replace permissions assigned to a custom role."
+    },
+    {
+      "code": "permissions:read",
+      "description": "List the permission catalog."
+    },
+    {
+      "code": "users:roles:read",
+      "description": "Read roles assigned to users."
+    },
+    {
+      "code": "users:roles:update",
+      "description": "Replace roles assigned to users."
+    },
+    {
+      "code": "system:super-admin",
+      "description": "Perform explicitly super-admin-only access-control operations."
+    }
+  ],
+  "systemRoles": [
+    {
+      "code": "super-admin",
+      "name": "Super administrator",
+      "description": "Full platform authority.",
+      "permissions": ["*"]
+    },
+    {
+      "code": "admin",
+      "name": "Administrator",
+      "description": "Manage custom roles and user role assignments.",
+      "permissions": [
+        "account:read",
+        "sessions:read",
+        "sessions:revoke",
+        "roles:read",
+        "roles:create",
+        "roles:update",
+        "roles:delete",
+        "roles:permissions:update",
+        "permissions:read",
+        "users:roles:read",
+        "users:roles:update"
+      ]
+    },
+    {
+      "code": "user",
+      "name": "User",
+      "description": "Default signed-in account.",
+      "permissions": ["account:read", "sessions:read", "sessions:revoke"]
+    }
+  ]
+}

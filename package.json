@@ -1,0 +1,82 @@
+{
+  "name": "api-template",
+  "version": "0.1.0",
+  "description": "Production-ready NestJS API template with PostgreSQL, JWE authentication, rotating refresh sessions, and RBAC.",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/src/main.js",
+    "format": "prisma format && prettier --write \"src/**/*.ts\" \"config/**/*.json\" \"prisma/**/*.mjs\" \"scripts/**/*.mjs\" \"docs/**/*.md\" \"*.{json,js,mjs,ts,md,yml,yaml}\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"config/**/*.json\" \"prisma/**/*.mjs\" \"scripts/**/*.mjs\" \"docs/**/*.md\" \"*.{json,js,mjs,ts,md,yml,yaml}\"",
+    "lint": "eslint \"{src,prisma,scripts}/**/*.{ts,mjs}\" --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "db:guard": "node --env-file=.env scripts/guard-database-target.mjs",
+    "db:migrate": "pnpm db:guard && prisma migrate deploy",
+    "db:migrate:dev": "pnpm db:guard && prisma migrate dev",
+    "db:seed": "pnpm db:guard && node --env-file=.env prisma/seed.mjs",
+    "user:promote": "pnpm db:guard && node --env-file=.env scripts/promote-user.mjs",
+    "swagger:export": "pnpm build && node --env-file=.env scripts/export-openapi.mjs"
+  },
+  "dependencies": {
+    "@fastify/cookie": "11.1.2",
+    "@fastify/helmet": "13.1.1",
+    "@nestjs/common": "11.1.28",
+    "@nestjs/config": "4.0.4",
+    "@nestjs/core": "11.1.28",
+    "@nestjs/platform-fastify": "11.1.28",
+    "@nestjs/swagger": "11.4.6",
+    "@nestjs/throttler": "6.5.0",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "argon2": "0.45.1",
+    "class-transformer": "0.5.1",
+    "class-validator": "0.15.1",
+    "fastify": "5.12.4",
+    "jose": "5.10.0",
+    "pg": "8.16.3",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@nestjs/cli": "11.0.24",
+    "@types/node": "22.20.2",
+    "@types/pg": "8.23.1",
+    "eslint": "10.10.0",
+    "globals": "17.12.0",
+    "prettier": "3.9.6",
+    "prisma": "7.10.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.0"
+  },
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
+  "packageManager": "pnpm@10.13.1",
+  "pnpm": {
+    "overrides": {
+      "deepmerge-ts": "8.0.2",
+      "fastify": "5.12.4",
+      "find-my-way": "9.9.0",
+      "js-yaml": "5.2.2",
+      "mysql2": "3.24.4"
+    },
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "react",
+        "react-dom"
+      ]
+    },
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "argon2",
+      "prisma"
+    ]
+  }
+}

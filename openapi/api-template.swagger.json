@@ -1,0 +1,915 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "operationId": "AccountController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Register and start an authenticated session",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AccountController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Sign in and start an authenticated session",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/auth/bootstrap": {
+      "post": {
+        "operationId": "AccountController_bootstrap",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Restore the browser session without rotating the refresh token",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "operationId": "AccountController_refresh",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Rotate the refresh token and issue a fresh access token",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "operationId": "AccountController_logout",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "End the current session or every account session",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "AccountController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthAccountDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/auth/sessions": {
+      "get": {
+        "operationId": "AccountController_listSessions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuthSessionListItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/auth/sessions/{sessionId}": {
+      "delete": {
+        "operationId": "AccountController_revokeSession",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/roles": {
+      "get": {
+        "operationId": "RolesController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoleResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Access control"
+        ]
+      },
+      "post": {
+        "operationId": "RolesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Access control"
+        ]
+      }
+    },
+    "/api/permissions": {
+      "get": {
+        "operationId": "RolesController_listPermissions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Access control"
+        ]
+      }
+    },
+    "/api/roles/{roleId}": {
+      "patch": {
+        "operationId": "RolesController_update",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Access control"
+        ]
+      },
+      "delete": {
+        "operationId": "RolesController_deactivate",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Access control"
+        ]
+      }
+    },
+    "/api/roles/{roleId}/permissions": {
+      "put": {
+        "operationId": "RolesController_replacePermissions",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaceRolePermissionsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Access control"
+        ]
+      }
+    },
+    "/api/users/{userId}/roles": {
+      "get": {
+        "operationId": "UserRolesController_get",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRolesResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Access control"
+        ]
+      },
+      "put": {
+        "operationId": "UserRolesController_replace",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaceUserRolesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Access control"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "API Template",
+    "description": "NestJS API template with JWE authentication, rotating refresh sessions, and RBAC.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWE",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "name": {
+            "type": "string",
+            "example": "Example User"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 128,
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "email",
+          "name",
+          "password"
+        ]
+      },
+      "AuthAccountDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "name": {
+            "type": "string"
+          },
+          "roles": {
+            "example": [
+              "user"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "example": [
+              "account:read"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name",
+          "roles",
+          "permissions"
+        ]
+      },
+      "AuthSessionResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "Compact JWE access token."
+          },
+          "accessTokenExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "csrfToken": {
+            "type": "string",
+            "description": "Send as x-csrf-token for refresh and logout."
+          },
+          "account": {
+            "$ref": "#/components/schemas/AuthAccountDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "accessTokenExpiresAt",
+          "csrfToken",
+          "account"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "LogoutDto": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "CURRENT_DEVICE",
+              "ALL_DEVICES"
+            ],
+            "default": "CURRENT_DEVICE"
+          }
+        }
+      },
+      "AuthSessionListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "current": {
+            "type": "boolean"
+          },
+          "issuedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUsedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "current",
+          "issuedAt",
+          "lastUsedAt",
+          "expiresAt"
+        ]
+      },
+      "RoleResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isSystem": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "isSystem",
+          "isActive",
+          "permissions"
+        ]
+      },
+      "PermissionResponseDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "CreateRoleDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "content-editor",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "name": {
+            "type": "string",
+            "example": "Content editor"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "permissionCodes": {
+            "example": [
+              "account:read"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "permissionCodes"
+        ]
+      },
+      "UpdateRoleDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Content editor"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      },
+      "ReplaceRolePermissionsDto": {
+        "type": "object",
+        "properties": {
+          "permissionCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "permissionCodes"
+        ]
+      },
+      "UserRolesResponseDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "userId",
+          "roles"
+        ]
+      },
+      "ReplaceUserRolesDto": {
+        "type": "object",
+        "properties": {
+          "roleCodes": {
+            "example": [
+              "user",
+              "content-editor"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "roleCodes"
+        ]
+      },
+      "HealthResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ],
+            "example": "ok"
+          },
+          "database": {
+            "type": "string",
+            "enum": [
+              "up"
+            ],
+            "example": "up"
+          }
+        },
+        "required": [
+          "status",
+          "database"
+        ]
+      },
+      "ProblemDetailsDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "https://api-template.dev/problems/auth-login"
+          },
+          "title": {
+            "type": "string",
+            "example": "Unauthorized"
+          },
+          "status": {
+            "type": "number",
+            "example": 401
+          },
+          "detail": {
+            "type": "string",
+            "example": "Email or password is incorrect."
+          },
+          "instance": {
+            "type": "string",
+            "example": "/api/auth/login"
+          },
+          "code": {
+            "type": "string",
+            "example": "AUTH_LOGIN_001"
+          },
+          "traceId": {
+            "type": "string",
+            "example": "442c2bc8-a9de-4bf8-825d-b3cc9fa636f7"
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "instance",
+          "code",
+          "traceId"
+        ]
+      }
+    }
+  }
+}
