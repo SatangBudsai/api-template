@@ -75,3 +75,5 @@ const query = useQuery({
   queryFn: () => apiTemplate.api.rolesControllerList(),
 });
 ```
+
+The root Playwright suite encodes this server-side flow through real HTTP requests. Run `pnpm test`; database mutation remains guarded to `api_template/public` and isolated test records are removed in teardown.

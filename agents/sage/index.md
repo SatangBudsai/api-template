@@ -81,3 +81,4 @@ Edit a file, commit, done — the agent follows your team's version.
 - [sage-product](sage-product/) - Sage product architecture, Project DNA, and cognition data governance.
 - [protocol](protocol/) - Sage cognition policy, risk controls, and cross-command contracts.
 - [security](security/) - Authentication, session, authorization, and API error-boundary decisions.
+- [testing](testing/) - Repository test-tooling and isolation decisions.

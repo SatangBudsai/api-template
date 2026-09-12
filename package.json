@@ -9,17 +9,18 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/src/main.js",
-    "format": "prisma format && prettier --write \"src/**/*.ts\" \"config/**/*.json\" \"prisma/**/*.mjs\" \"scripts/**/*.mjs\" \"docs/**/*.md\" \"*.{json,js,mjs,ts,md,yml,yaml}\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"config/**/*.json\" \"prisma/**/*.mjs\" \"scripts/**/*.mjs\" \"docs/**/*.md\" \"*.{json,js,mjs,ts,md,yml,yaml}\"",
-    "lint": "eslint \"{src,prisma,scripts}/**/*.{ts,mjs}\" --max-warnings=0",
+    "format": "prisma format && prettier --write \"src/**/*.ts\" \"tests/**/*.ts\" \"config/**/*.json\" \"prisma/**/*.mjs\" \"scripts/**/*.mjs\" \"docs/**/*.md\" \"*.{json,js,mjs,ts,md,yml,yaml}\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\" \"config/**/*.json\" \"prisma/**/*.mjs\" \"scripts/**/*.mjs\" \"docs/**/*.md\" \"*.{json,js,mjs,ts,md,yml,yaml}\"",
+    "lint": "eslint \"{src,tests,prisma,scripts}/**/*.{ts,mjs}\" playwright.config.ts --max-warnings=0",
     "typecheck": "tsc --noEmit",
+    "test": "pnpm build && pnpm db:migrate && pnpm db:seed && node --env-file-if-exists=.env ./node_modules/@playwright/test/cli.js test",
     "prisma:generate": "prisma generate",
-    "db:guard": "node --env-file=.env scripts/guard-database-target.mjs",
+    "db:guard": "node --env-file-if-exists=.env scripts/guard-database-target.mjs",
     "db:migrate": "pnpm db:guard && prisma migrate deploy",
     "db:migrate:dev": "pnpm db:guard && prisma migrate dev",
-    "db:seed": "pnpm db:guard && node --env-file=.env prisma/seed.mjs",
-    "user:promote": "pnpm db:guard && node --env-file=.env scripts/promote-user.mjs",
-    "swagger:export": "pnpm build && node --env-file=.env scripts/export-openapi.mjs"
+    "db:seed": "pnpm db:guard && node --env-file-if-exists=.env prisma/seed.mjs",
+    "user:promote": "pnpm db:guard && node --env-file-if-exists=.env scripts/promote-user.mjs",
+    "swagger:export": "pnpm build && node --env-file-if-exists=.env scripts/export-openapi.mjs"
   },
   "dependencies": {
     "@fastify/cookie": "11.1.2",
@@ -44,6 +45,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@nestjs/cli": "11.0.24",
+    "@playwright/test": "1.63.0",
     "@types/node": "22.20.2",
     "@types/pg": "8.23.1",
     "eslint": "10.10.0",

@@ -38,7 +38,7 @@ Browser -> POST /api/auth/bootstrap -> refresh cookie lookup
 - Prisma format, validate, generate, migration deploy, seed, and target guard passed.
 - ESLint, TypeScript, Nest build, and OpenAPI export passed before final handoff.
 - Live runtime smoke verified health, registration, JWE access, RBAC denial, role creation, duplicate conflict, immutable system roles, refresh rotation, replay detection, family revocation, and cleanup.
-- No test framework or checked-in test suite is part of the repository by user request.
+- Root `tests/` uses Playwright as the only runner. The request-level E2E suite verifies the auth/RBAC flow against a guarded `api_template/public` database and cleans up its isolated records.
 
 ## Out of scope
 
